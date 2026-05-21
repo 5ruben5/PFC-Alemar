@@ -1,0 +1,606 @@
+:root {
+        --primary: #6ab04c;
+        /* Verde vibrante */
+        --secondary: #4a69bd;
+        /* Azul moderno */
+        --danger: #eb4d4b;
+        /* Rojo suave */
+        --bg: #eef2f6;
+        /* Fondo más claro y moderno */
+        --white: #ffffff;
+        --text-dark: #333d47;
+        --text-light: #6a737d;
+        --border-color: #d1d9e6;
+        --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .texto-recordatorio {
+        color: var(--danger);
+        /* Usa tu variable de color rojo definida */
+        text-align: center;
+        /* Centra el texto */
+        margin-top: 10px;
+        /* Opcional: añade un poco de espacio arriba */
+        margin-bottom: 20px;
+        /* Opcional: añade un poco de espacio abajo */
+        font-weight: 600;
+        /* Opcional: haz el texto un poco más negrita */
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background-image: url('img/FondoFrutasVerduras.png');
+        background-color: rgba(255, 255, 255, 0.5);
+        /* Capa blanca translúcida encima */
+        background-blend-mode: lighten;
+        /* Mezcla la imagen con el color para dar opacidad visual */
+        /* Cambia por tu imagen */
+        background-size: cover;
+        /* Ajusta la imagen para cubrir toda la pantalla */
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        font-family: 'Poppins', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+
+    h2 {
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--secondary);
+        text-align: center;
+    }
+
+    .card {
+        background-color: var(--white);
+        padding: 35px;
+        border-radius: 18px;
+        /* Bordes más redondeados */
+        box-shadow: var(--shadow-light);
+        /* Sombra más suave */
+        width: 100%;
+        max-width: 900px;
+        /* MODIFICADO: Un poco más ancho para la tabla de pedidos */
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        /* Pequeño efecto al pasar el ratón */
+        box-shadow: var(--shadow-hover);
+    }
+
+    input,
+    select,
+    button,
+    textarea {
+        /* Añadir textarea aquí */
+        width: 100%;
+        padding: 12px 15px;
+        /* Más padding */
+        margin: 8px 0 18px;
+        /* Más espaciado vertical */
+        border-radius: 10px;
+        /* Bordes más redondeados */
+        border: 1px solid var(--border-color);
+        font-size: 16px;
+        /* Texto más grande */
+        font-family: 'Poppins', sans-serif;
+        color: var(--text-dark);
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        /* Añadir textarea aquí */
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
+        /* Sombra de foco */
+        outline: none;
+    }
+
+    button {
+        background-color: var(--secondary);
+        color: var(--white);
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: background 0.3s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+        background-color: #3f58a3;
+        /* Tono más oscuro al pasar el ratón */
+        transform: translateY(-1px);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    .danger {
+        background-color: var(--danger);
+    }
+
+    .danger:hover {
+        background-color: #d6403e;
+    }
+
+    .green {
+        background-color: var(--primary);
+    }
+
+    .green:hover {
+        background-color: #5aa63f;
+    }
+
+    #modal,
+    #editModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        /* Fondo más oscuro para el modal */
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    #modal .content,
+    #editModal .content {
+        background: var(--white);
+        padding: 30px 40px;
+        /* Más padding */
+        border-radius: 15px;
+        text-align: center;
+        max-width: 400px;
+        /* Tamaño fijo */
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-20px);
+        /* Efecto de entrada */
+        opacity: 0;
+        animation: fadeInModal 0.3s forwards;
+        max-height: 90vh;
+        /* Permite scroll en pantallas pequeñas */
+        overflow-y: auto;
+    }
+
+    /*MODIFICACIÓN: Modal de edición más ancho */
+    #editModal .content {
+        max-width: 800px;
+    }
+
+    #confirmModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1001;
+    }
+
+    #confirmModal .content {
+        background: var(--white);
+        padding: 30px 40px;
+        border-radius: 15px;
+        text-align: center;
+        max-width: 400px;
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-20px);
+        opacity: 0;
+        animation: fadeInModal 0.3s forwards;
+    }
+
+    #confirmModal .button-group {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .contador-pedidos {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: var(--danger);
+        color: white;
+        font-weight: bold;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        box-shadow: 0 0 0 2px white;
+        z-index: 10;
+    }
+
+    #print-only {
+        position: fixed;
+        top: -10000px;
+        left: 0;
+        width: 210mm;
+        background: white;
+    }
+
+    #admin.card {
+        position: relative;
+    }
+
+    @keyframes fadeInModal {
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .frutaItem {
+        display: flex;
+        gap: 10px;
+        /* Más espacio entre elementos */
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .frutaItem select,
+    .frutaItem input {
+        flex: 1;
+        margin: 0;
+        /* Eliminar margen para que el gap funcione mejor */
+    }
+
+    .frutaItem button {
+        width: auto;
+        padding: 10px 14px;
+        /* Botón de basura más estético */
+        margin: 0;
+        border-radius: 50%;
+        /* Circular */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        /* Icono más grande */
+    }
+
+    .pedido em {
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 15px;
+        /* Más espacio entre botones */
+        margin-top: 25px;
+        /* Más margen superior */
+        flex-wrap: wrap;
+        /* Para que se adapten mejor en móviles */
+    }
+
+    .button-group button {
+        flex: 1;
+        /* Ocupar espacio equitativamente */
+        min-width: 120px;
+        /* Ancho mínimo para evitar que se aprieten demasiado */
+    }
+
+    .pedido {
+        background: var(--white);
+        padding: 20px;
+        /* Más padding */
+        border-radius: 12px;
+        margin-top: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        /* Sombra más ligera */
+        border: 1px solid var(--border-color);
+        /* Borde sutil */
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        /* Necesario para posicionar la 'x' */
+        padding-right: 40px;
+        /* Espacio extra para el botón de eliminar */
+    }
+
+    .pedido:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .pedido strong {
+        color: var(--primary);
+        font-size: 1.1em;
+        display: block;
+        /* Para que nombre y apellido estén en su propia línea */
+        margin-bottom: 5px;
+    }
+
+    .pedido em {
+        color: var(--text-light);
+        font-size: 0.9em;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .pedido ul {
+        list-style: none;
+        /* Sin viñetas */
+        padding: 0;
+        margin: 0;
+    }
+
+    .pedido ul li {
+        background-color: var(--bg);
+        /* Fondo para cada item */
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        font-size: 0.95em;
+        color: var(--text-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .pedido ul li:last-child {
+        margin-bottom: 0;
+    }
+
+    #admin,
+    #cliente,
+    #misPedidos {
+        display: none;
+    }
+
+    /* Estilos para el botón de eliminar pedido */
+    .delete-pedido-btn {
+        position: absolute;
+        top: 10px;
+        /* Ajusta la posición vertical */
+        right: 10px;
+        /* Ajusta la posición horizontal */
+        background: none;
+        /* Sin fondo */
+        border: none;
+        /* Sin borde */
+        color: var(--danger);
+        /* Color rojo del texto */
+        font-size: 14px;
+        /* Tamaño de la "X" un poco más grande para visibilidad */
+        width: 24px;
+        /* Ancho del botón, no del texto */
+        height: 24px;
+        /* Alto del botón */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        line-height: 1;
+        /* Para que la "X" esté bien centrada */
+        transition: transform 0.2s ease, opacity 0.2s ease;
+        opacity: 0.7;
+        /* Ligeramente transparente por defecto */
+        border-radius: 50%;
+        /* Hacerlo circular para un toque moderno */
+    }
+
+    .delete-pedido-btn:hover {
+        transform: scale(1.2);
+        /* Efecto al pasar el ratón para destacar */
+        opacity: 1;
+        /* Opacidad completa */
+        background-color: rgba(235, 77, 75, 0.1);
+        /* Fondo suave al pasar el ratón */
+    }
+
+    .edit-pedido-btn {
+        position: absolute;
+        top: 10px;
+        right: 40px;
+        background: none;
+        border: none;
+        color: #f1c40f;
+        /* amarillo */
+        font-size: 16px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        border-radius: 50%;
+        opacity: 0.7;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .edit-pedido-btn:hover {
+        transform: scale(1.2);
+        opacity: 1;
+        background-color: rgba(241, 196, 15, 0.15);
+    }
+
+    /* NUEVO: Estilos para el botón de descarga de PDF */
+    .download-pdf-btn {
+        position: absolute;
+        top: 10px;
+        right: 70px;
+        /* Ajusta la posición a la izquierda de los otros botones */
+        background: none;
+        border: none;
+        color: var(--secondary);
+        /* Color azul moderno */
+        font-size: 16px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        border-radius: 50%;
+        opacity: 0.7;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .download-pdf-btn:hover {
+        transform: scale(1.2);
+        opacity: 1;
+        background-color: rgba(74, 105, 189, 0.15);
+        /* Fondo suave al pasar el ratón */
+    }
+
+    .pedido-descargado {
+        background-color: #d0ebff !important;
+        /* azul claro */
+        transition: background-color 0.3s ease;
+    }
+
+    /* Clase para ocultar pedidos que no coinciden con la búsqueda */
+    .pedido.hidden {
+        display: none;
+    }
+
+    /*INICIO: NUEVOS ESTILOS PARA LA TABLA DEL CLIENTE */
+    #productos-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    #editProductosTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+
+    #editProductosTable td,
+    #editProductosTable th {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    #editProductosTable th {
+        background-color: var(--secondary);
+        color: white;
+        font-size: 0.9em;
+    }
+
+    #editProductosTable tr:nth-child(even) {
+        background-color: var(--bg);
+    }
+
+
+    #productos-table th,
+    #productos-table td {
+        padding: 12px 15px;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    #productos-table thead {
+        background-color: var(--secondary);
+        color: var(--white);
+    }
+
+    #productos-table tbody tr:nth-child(odd) {
+        background-color: var(--bg);
+    }
+
+    #productos-table tbody tr:hover {
+        background-color: #e3e8ee;
+        transition: background-color 0.3s ease;
+    }
+
+    .producto-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .cantidad-input,
+    .medida-select {
+        width: 100px;
+        text-align: center;
+        margin: 0;
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    /*FIN: NUEVOS ESTILOS PARA LA TABLA DEL CLIENTE */
+
+    /*
+        ====================================================
+        ESTILOS PARA MÓVIL
+        ====================================================
+    */
+    @media (max-width: 600px) {
+        .card {
+            padding: 15px;
+            /* Reduce el padding de la tarjeta */
+        }
+
+        .table-responsive {
+            /* Mantenemos el scroll horizontal como última opción */
+            overflow-x: auto;
+        }
+
+        #productos-table {
+            /* Quitamos el ancho mínimo para que la tabla pueda encogerse */
+            min-width: unset;
+            width: 100%;
+        }
+
+        /* Reducimos el padding y el tamaño de la fuente para ahorrar espacio */
+        #productos-table th,
+        #productos-table td {
+            padding: 5px 8px;
+            font-size: 12px;
+        }
+
+        /* Reducimos el tamaño de la imagen */
+        .producto-img {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        /* Hacemos los inputs más pequeños */
+        .cantidad-input,
+        .medida-select {
+            width: 60px;
+            padding: 3px;
+            font-size: 12px;
+        }
+    }

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es">
+
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="img/AlemarLogoCircular.png" type="image/png">
+    <title>ALEMAR</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Librerías -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <!-- PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- JS -->
+    <script src="js/app.js" defer></script>
+</head>
+
+<body>
+
+    <div class="card" id="login">
+        <h2>Iniciar Sesión</h2>
+        <h5 class="texto-recordatorio">Recuerde que el pedido se debe de realizar 48 horas antes de su entrega.</h5>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="img/AlemarLogoCircular.png" alt="Logo Alemar" style="width: 80px; height: 80px; border-radius: 50%;">
+        </div>
+        <div class="input-group">
+            <input type="text" id="usuario" placeholder="👤 Usuario" />
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="🔒 Contraseña" />
+        </div>
+        <div style="margin-top: -10px; margin-bottom: 20px; display: flex; align-items: center; font-size: 14px;">
+            <input type="checkbox" id="recordarDatos" style="width: 16px; height: 16px; margin-right: 6px; cursor: pointer;" />
+            <label for="recordarDatos" style="cursor: pointer; height: 30px;">Recordar usuario y contraseña</label>
+        </div>
+
+
+        <button onclick="login()">Entrar</button>
+    </div>
+
+    <div class="card" id="cliente">
+        <h2>Pedido</h2>
+        <input type="text" id="nombre" hidden />
+        <input type="text" id="empresa" hidden />
+        <input type="text" id="fechaEntrega" placeholder="Fecha entrega pedido" onfocus="this.type='date'" />
+
+        <div class="table-responsive">
+            <table id="productos-table">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Medida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-label="Imagen"><img src="img/Productos/naranja.jpg" alt="Naranja" class="producto-img"></td>
+                        <td data-label="Producto">Naranja</td>
+                        <td data-label="Cantidad"><input type="number" class="cantidad-input" data-producto="naranja" min="0" value="0"></td>
+                        <td data-label="Medida">
+                            <select class="medida-select" data-producto="naranja">
+                                <option value="kg">kg</option>
+                                <option value="cajas">Cajas</option>
+                                <option value="unidades">Unidades</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Imagen"><img src="img/Productos/banana.jpg" alt="Banana" class="producto-img"></td>
+                        <td data-label="Producto">Banana</td>
+                        <td data-label="Cantidad"><input type="number" class="cantidad-input" data-producto="banana" min="0" value="0"></td>
+                        <td data-label="Medida">
+                            <select class="medida-select" data-producto="banana">
+                                <option value="kg">kg</option>
+                                <option value="cajas">Cajas</option>
+                                <option value="unidades">Unidades</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Imagen"><img src="img/Productos/sandia.jpg" alt="Sandía" class="producto-img"></td>
+                        <td data-label="Producto">Sandía</td>
+                        <td data-label="Cantidad"><input type="number" class="cantidad-input" data-producto="sandia" min="0" value="0"></td>
+                        <td data-label="Medida">
+                            <select class="medida-select" data-producto="sandia">
+                                <option value="kg">kg</option>
+                                <option value="cajas">Cajas</option>
+                                <option value="unidades">Unidades</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Imagen"><img src="img/Productos/melon.jpg" alt="Melón" class="producto-img"></td>
+                        <td data-label="Producto">Melón</td>
+                        <td data-label="Cantidad"><input type="number" class="cantidad-input" data-producto="melon" min="0" value="0"></td>
+                        <td data-label="Medida">
+                            <select class="medida-select" data-producto="melon">
+                                <option value="kg">kg</option>
+                                <option value="cajas">Cajas</option>
+                                <option value="unidades">Unidades</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <textarea id="observaciones" placeholder="Observaciones (opcional)" rows="3"></textarea>
+
+        <div class="button-group">
+            <button class="green" onclick="hacerPedido()">Hacer Pedido</button>
+            <button onclick="verMisPedidos()">Ver mis Pedidos</button>
+        </div>
+        <button class="danger" onclick="logout()">Cerrar Sesión</button>
+    </div>
+
+    <div class="card" id="misPedidos">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Mis Pedidos</h2>
+        </div>
+        <button class="green" onclick="volverAPedido()">Volver</button>
+        <div id="listaMisPedidos">
+            </div>
+    </div>
+
+    <div class="card" id="admin">
+        <h2>Lista de Pedidos</h2>
+        <div id="contadorPedidos" class="contador-pedidos">0</div>
+        <div class="button-group">
+            <button onclick="descargarExcel()">Descargar Excel</button>
+            <button class="danger" onclick="logout()">Cerrar Sesión</button>
+        </div>
+        <div id="listaPedidos"></div>
+    </div>
+
+    <div id="modal">
+        <div class="content">
+            <p id="modalTexto"></p>
+            <button onclick="cerrarModal()">OK</button>
+        </div>
+    </div>
+
+    <div id="confirmModal">
+        <div class="content">
+            <p id="confirmTexto"></p>
+            <div class="button-group">
+                <button class="green" id="confirmAceptar">Sí, eliminar</button>
+                <button class="danger" onclick="cerrarConfirmModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal">
+        <div class="content">
+            <h2>Editar Pedido</h2>
+            <input type="hidden" id="editPedidoId">
+            <label for="editFechaEntrega">Fecha de Entrega:</label>
+            <input type="date" id="editFechaEntrega">
+
+            <label>Productos:</label>
+            <table id="editProductosTable">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Medida</th>
+                    </tr>
+                </thead>
+                <tbody id="editItemsContainer">
+                    </tbody>
+            </table>
+            
+            <button class="green" onclick="addNewEditItemRow()" style="width:auto; margin: 10px 0;">+ Añadir otro producto</button>
+
+            <label for="editObservaciones">Observaciones:</label>
+            <textarea id="editObservaciones" rows="3"></textarea>
+
+            <div class="button-group">
+                <button class="green" onclick="guardarEdicionPedido()">Guardar</button>
+                <button class="danger" onclick="cerrarEditModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <div id="pdf-container" style="position: absolute; left: -9999px;"></div>
+
+    <script>
+        // Variable global para almacenar los pedidos (ahora se cargará desde Firestore)
+        let pedidos = [];
+        let pedidosPorPagina = 5;
+        let paginaActual = 1;
+
+
+        // Lista de frutas disponibles para el selector en el modal de edición
+        const frutasDisponibles = ["Naranja", "Banana", "Sandía", "Melón"];
+        const unidadesDisponibles = ["kg", "cajas", "unidades"];
+
+
+        // Función para mostrar un modal con un mensaje
+        function mostrarModal(mensaje, titulo = "Información", callback = null) {
+            document.getElementById("modalTexto").innerText = mensaje;
+            const modal = document.getElementById("modal");
+            modal.style.display = "flex";
+            if (callback) {
+                document.querySelector("#modal button").onclick = () => {
+                    cerrarModal();
+                    callback();
+                };
+            } else {
+                document.querySelector("#modal button").onclick = cerrarModal;
+            }
+        }
+
+        // Función para cerrar el modal
+        function cerrarModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        // Función para mostrar el modal de confirmación
+        function mostrarConfirmModal(mensaje, onConfirm) {
+            document.getElementById("confirmTexto").innerText = mensaje;
+            document.getElementById("confirmModal").style.display = "flex";
+            document.getElementById("confirmAceptar").onclick = () => {
+                cerrarConfirmModal();
+                onConfirm();
+            };
+        }
+
+        // Función para cerrar el modal de confirmación
+        function cerrarConfirmModal() {
+            document.getElementById("confirmModal").style.display = "none";
+        }
+
+        //INICIO: NUEVAS FUNCIONES PARA EDICIÓN DE PEDIDOS
+        // Función para renderizar la tabla de productos en el modal de edición
+        function renderEditItems(items) {
+            const container = document.getElementById("editItemsContainer");
+            container.innerHTML = "";
+            items.forEach((item) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>
+                        <select class="edit-fruta-select">
+                            ${frutasDisponibles.map(fruta => `<option value="${fruta}" ${fruta === item.fruta ? 'selected' : ''}>${fruta}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td><input type="number" class="edit-cantidad-input" value="${item.cantidad}" min="1"></td>
+                    <td>
+                        <select class="edit-unidad-select">
+                            ${unidadesDisponibles.map(unidad => `<option value="${unidad}" ${unidad === item.unidad ? 'selected' : ''}>${unidad}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td><button onclick="eliminarEditItem(this)" class="danger">✖</button></td>
+                `;
+                container.appendChild(tr);
+            });
+        }
+        
+        function addNewEditItemRow() {
+            const container = document.getElementById("editItemsContainer");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>
+                    <select class="edit-fruta-select">
+                        <option value="">Selecciona...</option>
+                        ${frutasDisponibles.map(fruta => `<option value="${fruta}">${fruta}</option>`).join('')}
+                    </select>
+                </td>
+                <td><input type="number" class="edit-cantidad-input" value="0" min="0"></td>
+                <td>
+                    <select class="edit-unidad-select">
+                        ${unidadesDisponibles.map(unidad => `<option value="${unidad}">${unidad}</option>`).join('')}
+                    </select>
+                </td>
+                <td><button onclick="eliminarEditItem(this)" class="danger">✖</button></td>
+            `;
+            container.appendChild(tr);
+        }
+
+        function eliminarEditItem(button) {
+            const row = button.closest("tr");
+            row.remove();
+        }
+
+        // Función para abrir el modal de edición
+        async function editarPedido(id) {
+            const pedido = pedidos.find(p => p.id === id);
+            if (!pedido) {
+                mostrarModal("Pedido no encontrado.");
+                return;
+            }
+
+            document.getElementById("editPedidoId").value = id;
+            document.getElementById("editFechaEntrega").value = pedido.fechaEntrega;
+            document.getElementById("editObservaciones").value = pedido.observaciones;
+
+            // 🆕 Modificación: Renderizar solo los items del pedido
+            renderEditItems(pedido.items);
+
+            document.getElementById("editModal").style.display = "flex";
+        }
+
+        // Función para cerrar el modal de edición
+        function cerrarEditModal() {
+            document.getElementById("editModal").style.display = "none";
+        }
+
+        // Función para guardar los cambios del pedido
+        async function guardarEdicionPedido() {
+            const id = document.getElementById("editPedidoId").value;
+            const pedidoOriginal = pedidos.find(p => p.id === id); // Obtener datos originales
+            
+            const nuevaFechaEntrega = document.getElementById("editFechaEntrega").value;
+            const nuevasObservaciones = document.getElementById("editObservaciones").value.trim();
+            const nuevosItems = [];
+
+            const filasItems = document.getElementById("editItemsContainer").querySelectorAll("tr");
+            filasItems.forEach(fila => {
+                const fruta = fila.querySelector(".edit-fruta-select").value;
+                const cantidad = parseInt(fila.querySelector(".edit-cantidad-input").value);
+                const unidad = fila.querySelector(".edit-unidad-select").value;
+
+                if (fruta && cantidad > 0) {
+                    nuevosItems.push({ fruta, cantidad, unidad });
+                }
+            });
+
+            if (!nuevaFechaEntrega || nuevosItems.length === 0) {
+                mostrarModal("Completa todos los campos obligatorios y añade al menos un producto.");
+                return;
+            }
+
+            try {
+                await db.collection("pedidos").doc(id).update({
+                    nombre: pedidoOriginal.nombre, // Mantener el nombre original
+                    empresa: pedidoOriginal.empresa, // Mantener la empresa original
+                    fechaEntrega: nuevaFechaEntrega,
+                    observaciones: nuevasObservaciones,
+                    items: nuevosItems,
+                    fechaPedido: new Date().toISOString() // Opcional: Actualizar la fecha del pedido
+                });
+                mostrarModal("Pedido actualizado con éxito.");
+                cerrarEditModal();
+            } catch (error) {
+                console.error("Error al actualizar el pedido:", error);
+                mostrarModal("Error al actualizar el pedido. Inténtalo de nuevo.");
+            }
+        }
+        //FIN DE MODIFICACIÓN
+
+        // Función para iniciar sesión
+        function login() {
+            const email = document.getElementById("usuario").value.toLowerCase();
+            const password = document.getElementById("password").value;
+
+            if (!email || !password) {
+                mostrarModal("Por favor ingresa usuario y contraseña.");
+                return;
+            }
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(async (userCredential) => {
+                    const user = userCredential.user;
+
+                    // 🔎 Buscar en la colección clientes
+                    const doc = await db.collection("clientes").doc(user.uid).get();
+
+                    if (!doc.exists) {
+                        mostrarModal("Este usuario no tiene información registrada como cliente.");
+                        firebase.auth().signOut();
+                        document.getElementById("login").style.display = "block";
+                        return;
+                    }
+
+                    const data = doc.data();
+
+                    // ✅ Condición especial: si es el admin autorizado
+                    const esAdmin =
+                        email === "administracion@alemarsl.com" &&
+                        data.nombre?.toLowerCase() === "alemar" &&
+                        data.empresa?.toLowerCase() === "alemar";
+
+                    if (esAdmin) {
+                        // Mostrar vista administrador
+                        document.getElementById("admin").style.display = "block";
+                        document.getElementById("cliente").style.display = "none";
+                        document.getElementById("login").style.display = "none";
+                        escucharPedidosFirestore(); // Cargar pedidos
+                        return;
+                    }
+
+                    //Vista cliente normal
+                    document.getElementById("cliente").style.display = "block";
+                    document.getElementById("admin").style.display = "none";
+                    document.getElementById("login").style.display = "none";
+                    document.getElementById("misPedidos").style.display = "none";
+
+                    // Autocompletar y desactivar campos
+                    document.getElementById("nombre").value = data.nombre;
+                    document.getElementById("empresa").value = data.empresa;
+                    document.getElementById("nombre").disabled = true;
+                    document.getElementById("empresa").disabled = true;
+                })
+                .catch(error => {
+                    console.error("Error de inicio de sesión:", error);
+                    mostrarModal("Usuario o contraseña incorrectos.");
+                });
+
+            //Guardar o eliminar credenciales según la casilla
+            const recordar = document.getElementById("recordarDatos").checked;
+            if (recordar) {
+                localStorage.setItem("usuario", email);
+                localStorage.setItem("password", password);
+            } else {
+                localStorage.removeItem("usuario");
+                localStorage.removeItem("password");
+            }
+
+            // Limpiar los campos del formulario
+            document.getElementById("usuario").value = '';
+            document.getElementById("password").value = '';
+        }
+
+
+
+
+        // Función para cerrar sesión
+        function logout() {
+            firebase.auth().signOut().then(() => {
+                document.getElementById("login").style.display = "block";
+                document.getElementById("admin").style.display = "none";
+                document.getElementById("cliente").style.display = "none";
+                document.getElementById("misPedidos").style.display = "none";
+                document.getElementById('fechaEntrega').value = '';
+                document.getElementById('observaciones').value = '';
+                document.querySelectorAll('.cantidad-input').forEach(input => input.value = '0');
+                if (window.unsubscribeFirestore) {
+                    window.unsubscribeFirestore();
+                    window.unsubscribeFirestore = null;
+                }
+            }).catch(error => {
+                console.error("Error al cerrar sesión:", error);
+                mostrarModal("Error al cerrar sesión.");
+            });
+        }
+
+
+        // Función para realizar un pedido
+        async function hacerPedido() {
+            const user = firebase.auth().currentUser; // 👈 obtener el usuario actual
+            const emailCliente = user ? user.email : "sin-email"; // 👈 capturar su email
+
+            const nombre = document.getElementById('nombre').value.trim();
+            const empresa = document.getElementById('empresa').value.trim();
+            const fechaEntrega = document.getElementById('fechaEntrega').value;
+            const observaciones = document.getElementById('observaciones').value.trim();
+            const items = [];
+
+            //Nuevo: Recorremos las filas de la tabla para obtener los productos.
+            const filasProductos = document.querySelectorAll('#productos-table tbody tr');
+
+            filasProductos.forEach(fila => {
+                const cantidadInput = fila.querySelector('.cantidad-input');
+                const medidaSelect = fila.querySelector('.medida-select');
+
+                const cantidad = parseInt(cantidadInput.value);
+
+                // Solo añadimos el producto si la cantidad es mayor que 0
+                if (cantidad > 0) {
+                    const fruta = fila.querySelector('td:nth-child(2)').textContent.trim();
+                    const unidad = medidaSelect.value;
+                    items.push({
+                        fruta,
+                        cantidad,
+                        unidad
+                    });
+                }
+            });
+
+            if (!nombre || !empresa || !fechaEntrega || items.length === 0) {
+                mostrarModal('Completa todos los campos obligatorios y añade al menos un producto con una cantidad mayor a 0.');
+                return;
+            }
+
+            const pedido = {
+                nombre,
+                empresa,
+                email: emailCliente, // 👈 AÑADIDO: guardar el email
+                fechaEntrega,
+                fechaPedido: new Date().toISOString(), // 👈 Usar ISOString para facilitar el orden
+                items,
+                observaciones: observaciones || ''
+            };
+
+            try {
+                await db.collection("pedidos").add(pedido);
+                mostrarModal('Pedido realizado con éxito', '', () => {
+                    document.getElementById('fechaEntrega').value = '';
+                    document.getElementById('observaciones').value = '';
+
+                    // 🆕 Nuevo: Reiniciar los valores de la tabla a 0
+                    document.querySelectorAll('.cantidad-input').forEach(input => input.value = '0');
+                    document.querySelectorAll('.medida-select').forEach(select => select.value = 'kg');
+                });
+            } catch (error) {
+                console.error("Error al hacer el pedido:", error);
+                mostrarModal("Error al realizar el pedido. Inténtalo de nuevo.");
+            }
+        }
+
+
+        // Función para actualizar la lista de pedidos mostrada en el panel de administrador
+        function actualizarListaPedidos() {
+            const contenedor = document.getElementById("listaPedidos");
+            contenedor.innerHTML = "";
+
+            const contador = document.getElementById("contadorPedidos");
+            contador.textContent = pedidos.length;
+
+            // Calcular paginación
+            const totalPaginas = Math.ceil(pedidos.length / pedidosPorPagina);
+            if (paginaActual > totalPaginas) paginaActual = totalPaginas || 1;
+            const inicio = (paginaActual - 1) * pedidosPorPagina;
+            const fin = inicio + pedidosPorPagina;
+            const pedidosPaginados = pedidos.slice(inicio, fin);
+
+            pedidosPaginados.forEach((p) => {
+                const div = document.createElement("div");
+                div.className = "pedido";
+                div.setAttribute('data-id', p.id);
+                if (p.descargado) div.classList.add('pedido-descargado');
+                div.innerHTML = `
+                    <button class="delete-pedido-btn" onclick="eliminarPedido('${p.id}')">✖</button>
+                    <button class="edit-pedido-btn" onclick="editarPedido('${p.id}')" title="Editar Pedido">✏️</button>
+                    <button class="download-pdf-btn" onclick="descargarPedidoPdf('${p.id}')" title="Descargar PDF">⬇️</button>
+                    <strong>${p.empresa}</strong><br>
+                    <em>Correo: ${p.email || 'No disponible'}</em>
+                    <em>Fecha de Pedido: ${new Date(p.fechaPedido).toLocaleString()}</em>
+                    <em>Fecha de Entrega: ${p.fechaEntrega || 'No especificada'}</em>
+                    <ul>
+                        ${p.items.map(item => `<li>${item.cantidad} ${item.unidad} de ${item.fruta}</li>`).join('')}
+                    </ul>
+                    ${p.observaciones ? `<p><strong style="color: #f1c40f;">Observación:</strong> ${p.observaciones}</p>` : ''}
+                `;
+                contenedor.appendChild(div);
+            });
+
+            // Crear controles de paginación
+            const paginacion = document.createElement("div");
+            paginacion.style.display = "flex";
+            paginacion.style.justifyContent = "center";
+            paginacion.style.marginTop = "20px";
+            paginacion.style.gap = "10px";
+
+            const btnAnterior = document.createElement("button");
+            btnAnterior.textContent = "Anterior";
+            btnAnterior.disabled = paginaActual === 1;
+            btnAnterior.onclick = () => {
+                paginaActual--;
+                actualizarListaPedidos();
+            };
+
+            const btnSiguiente = document.createElement("button");
+            btnSiguiente.textContent = "Siguiente";
+            btnSiguiente.disabled = paginaActual >= totalPaginas;
+            btnSiguiente.onclick = () => {
+                paginaActual++;
+                actualizarListaPedidos();
+            };
+
+            paginacion.appendChild(btnAnterior);
+            const spanPagina = document.createElement("span");
+            spanPagina.textContent = `Página ${paginaActual} de ${totalPaginas || 1}`;
+            spanPagina.style.alignSelf = "center";
+            spanPagina.style.fontFamily = "'Poppins', sans-serif";
+            spanPagina.style.fontWeight = "600";
+            paginacion.appendChild(spanPagina);
+            paginacion.appendChild(btnSiguiente);
+            if (totalPaginas > 1) {
+                contenedor.appendChild(paginacion);
+            }
+        }
+
+        // Función para escuchar cambios en la base de datos de Firebase
+        function escucharPedidosFirestore() {
+            if (window.unsubscribeFirestore) {
+                window.unsubscribeFirestore();
+            }
+            
+            //MODIFICACIÓN: Se elimina .orderBy para evitar el error de índice
+            const pedidosRef = db.collection('pedidos');
+
+            window.unsubscribeFirestore = pedidosRef.onSnapshot(snapshot => {
+                pedidos = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                //MODIFICACIÓN: Se ordena en el cliente para evitar el error
+                pedidos.sort((a, b) => new Date(b.fechaPedido) - new Date(a.fechaPedido));
+                actualizarListaPedidos();
+            }, error => {
+                console.error("Error al escuchar los pedidos:", error);
+                mostrarModal("No se pudieron cargar los pedidos. Inténtalo de nuevo más tarde.");
+            });
+        }
+
+        // Función para eliminar un pedido de la base de datos
+        function eliminarPedido(id) {
+            mostrarConfirmModal("¿Estás seguro de que quieres eliminar este pedido?", async () => {
+                try {
+                    await db.collection("pedidos").doc(id).delete();
+                    mostrarModal("Pedido eliminado con éxito.");
+                } catch (error) {
+                    console.error("Error al eliminar el pedido:", error);
+                    mostrarModal("Error al eliminar el pedido. Inténtalo de nuevo.");
+                }
+            });
+        }
+
+        // Función para descargar todos los pedidos en un archivo Excel
+        async function descargarExcel() {
+            const data = pedidos.map(p => ({
+                'Empresa': p.empresa,
+                'Email': p.email || 'No disponible',
+                'Fecha Pedido': new Date(p.fechaPedido).toLocaleString(),
+                'Fecha Entrega': p.fechaEntrega || 'No especificada',
+                'Detalle del Pedido': p.items.map(item => `${item.cantidad} ${item.unidad} de ${item.fruta}`).join(', '),
+                'Observaciones': p.observaciones || ''
+            }));
+
+            if (data.length === 0) {
+                mostrarModal("No hay pedidos para descargar.");
+                return;
+            }
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Pedidos");
+            const fecha = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `Pedidos_Alemar_${fecha}.xlsx`);
+        }
+
+        async function descargarPedidoPdf(pedidoId) {
+            const pedido = pedidos.find(p => p.id === pedidoId);
+            if (!pedido) {
+                mostrarModal("Pedido no encontrado.");
+                return;
+            }
+
+            const content = document.createElement('div');
+            content.style.padding = '20px';
+            content.style.fontFamily = 'Arial, sans-serif';
+
+            const logoUrl = 'img/AlemarLogoCircular.png';
+            const logo = document.createElement('img');
+            logo.src = logoUrl;
+            logo.style.width = '80px';
+            logo.style.height = '80px';
+            logo.style.borderRadius = '50%';
+            logo.style.marginBottom = '20px';
+
+            content.appendChild(logo);
+
+            content.innerHTML += `
+                <h1 style="color: var(--secondary);">Pedido de ${pedido.empresa}</h1>
+                <p><strong>Fecha de pedido:</strong> ${new Date(pedido.fechaPedido).toLocaleString()}</p>
+                <p><strong>Fecha de entrega:</strong> ${pedido.fechaEntrega}</p>
+                <p><strong>Cliente:</strong> ${pedido.nombre}</p>
+                <p><strong>Email:</strong> ${pedido.email}</p>
+                <h3 style="color: var(--primary);">Productos:</h3>
+                <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr style="background-color: var(--bg);">
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Producto</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Cantidad</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Medida</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${pedido.items.map(item => `
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${item.fruta}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${item.cantidad}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${item.unidad}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                ${pedido.observaciones ? `<h3 style="color: #f1c40f; margin-top: 20px;">Observaciones:</h3><p>${pedido.observaciones}</p>` : ''}
+            `;
+
+            const pdfContainer = document.getElementById('pdf-container');
+            pdfContainer.innerHTML = '';
+            pdfContainer.appendChild(content);
+
+            const options = {
+                filename: `Pedido_${pedido.empresa.replace(/\s/g, '_')}_${pedido.fechaEntrega}.pdf`,
+                html2canvas: {
+                    scale: 2
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                }
+            };
+
+            await html2pdf().set(options).from(content).save();
+
+            pdfContainer.innerHTML = ''; // Limpiar el contenedor después de la descarga
+
+            // Marcar el pedido como descargado en Firestore
+            const pedidoDocRef = db.collection('pedidos').doc(pedidoId);
+            await pedidoDocRef.update({
+                descargado: true
+            });
+        }
+
+        // Función para cambiar a la vista de "Mis Pedidos"
+        async function verMisPedidos() {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                mostrarModal("No se pudo identificar al usuario.");
+                return;
+            }
+
+            // Ocultar el formulario de pedido y mostrar la lista
+            document.getElementById("cliente").style.display = "none";
+            document.getElementById("misPedidos").style.display = "block";
+
+            const listaPedidosDiv = document.getElementById("listaMisPedidos");
+            listaPedidosDiv.innerHTML = "Cargando tus pedidos...";
+
+            try {
+                const querySnapshot = await db.collection("pedidos")
+                    .where("email", "==", user.email)
+                    .get();
+
+                let pedidosCliente = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                pedidosCliente.sort((a, b) => new Date(b.fechaPedido) - new Date(a.fechaPedido));
+
+                if (pedidosCliente.length === 0) {
+                    listaPedidosDiv.innerHTML = "<p style='text-align: center; color: var(--text-light);'>Aún no has realizado ningún pedido.</p>";
+                    return;
+                }
+
+                // Limpiar el div antes de agregar los nuevos pedidos
+                listaPedidosDiv.innerHTML = "";
+
+                pedidosCliente.forEach((p, index) => {
+                    const div = document.createElement("div");
+                    div.className = "pedido";
+                    div.innerHTML = `
+                        <strong>#${pedidosCliente.length - index} - Pedido del ${new Date(p.fechaPedido).toLocaleDateString()}</strong>
+                        <em>Fecha de Entrega: ${p.fechaEntrega || 'No especificada'}</em>
+                        <ul>
+                            ${p.items.map(item => `<li>${item.cantidad} ${item.unidad} de ${item.fruta}</li>`).join('')}
+                        </ul>
+                        ${p.observaciones ? `<p><strong style="color: #f1c40f;">Observación:</strong> ${p.observaciones}</p>` : ''}
+                    `;
+                    listaPedidosDiv.appendChild(div);
+                });
+
+            } catch (error) {
+                console.error("Error al obtener los pedidos del cliente:", error);
+                listaPedidosDiv.innerHTML = `<p style='text-align: center; color: var(--danger);'>Error al cargar tus pedidos: ${error.message}</p>`;
+            }
+        }
+
+        // Función para volver a la pantalla de "Hacer Pedido"
+        function volverAPedido() {
+            document.getElementById("misPedidos").style.display = "none";
+            document.getElementById("cliente").style.display = "block";
+        }
+
+        // Función de inicialización
+        function init() {
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    db.collection("clientes").doc(user.uid).get().then(doc => {
+                        const data = doc.data();
+                        const esAdmin = user.email === "administracion@alemarsl.com";
+
+                        if (esAdmin) {
+                            document.getElementById("admin").style.display = "block";
+                            document.getElementById("login").style.display = "none";
+                            document.getElementById("misPedidos").style.display = "none";
+                            escucharPedidosFirestore();
+                        } else {
+                            document.getElementById("cliente").style.display = "block";
+                            document.getElementById("login").style.display = "none";
+                            document.getElementById("misPedidos").style.display = "none";
+                            document.getElementById("nombre").value = data.nombre;
+                            document.getElementById("empresa").value = data.empresa;
+                            document.getElementById("nombre").disabled = true;
+                            document.getElementById("empresa").disabled = true;
+                        }
+                    }).catch(error => {
+                        console.error("Error al obtener datos del cliente:", error);
+                        firebase.auth().signOut();
+                        document.getElementById("login").style.display = "block";
+                    });
+                } else {
+                    document.getElementById("login").style.display = "block";
+                    document.getElementById("admin").style.display = "none";
+                    document.getElementById("cliente").style.display = "none";
+                    document.getElementById("misPedidos").style.display = "none";
+
+                    // Autocompletar login si se guardó
+                    const usuarioGuardado = localStorage.getItem("usuario");
+                    const passwordGuardada = localStorage.getItem("password");
+                    if (usuarioGuardado && passwordGuardada) {
+                        document.getElementById("usuario").value = usuarioGuardado;
+                        document.getElementById("password").value = passwordGuardada;
+                        document.getElementById("recordarDatos").checked = true;
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
